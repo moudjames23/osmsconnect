@@ -2,7 +2,6 @@ package io.github.moudjames23.osmsconnect.model.request;
 
 import lombok.*;
 
-
 @Getter
 @Setter
 @Builder

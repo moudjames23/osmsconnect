@@ -17,7 +17,7 @@ class JsonUtilsTest {
         // Given
         SMSRequest smsRequest = SMSRequest.builder()
                 .to("224620000000")
-                .from(Country.GuineaConakry)
+                .from(Country.GUINEA)
                 .message("Hello World !")
                 .senderName("OSMSConnect")
                 .build();
