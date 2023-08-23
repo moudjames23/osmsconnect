@@ -49,7 +49,9 @@ public class SMS {
 
         Optional<AuthorizationResponse> authorizationResponse = Optional.ofNullable(performRequest(request, ResponseSuccessCode.SUCCESS, AuthorizationResponse.class, new AuthorizationError()));
 
-        return authorizationResponse.map(AuthorizationResponse::getAccessToken).orElseThrow(()-> new SMSException("Impossible de générer le token"));
+        return authorizationResponse
+                .map(AuthorizationResponse::getAccessToken)
+                .orElseThrow(()-> new SMSException("Unable to generate token"));
     }
     /**
      * Get the remaining SMS balance based on the country code.

@@ -9,7 +9,6 @@ import io.github.moudjames23.osmsconnect.model.response.SendSMSResponse;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.util.*;
 
 public class Application {
 
