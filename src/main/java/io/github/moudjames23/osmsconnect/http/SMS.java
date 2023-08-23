@@ -1,63 +1,90 @@
 package io.github.moudjames23.osmsconnect.http;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import io.github.moudjames23.osmsconnect.enums.Country;
 import io.github.moudjames23.osmsconnect.enums.ResponseSuccessCode;
-import io.github.moudjames23.osmsconnect.http.requets.BalanceRequest;
-import io.github.moudjames23.osmsconnect.http.requets.OrderHistoryRequest;
-import io.github.moudjames23.osmsconnect.http.requets.SendRequest;
+
+import io.github.moudjames23.osmsconnect.exception.SMSException;
+import io.github.moudjames23.osmsconnect.http.requests.BalanceRequest;
+import io.github.moudjames23.osmsconnect.http.requests.SendRequest;
+import io.github.moudjames23.osmsconnect.http.requests.AuthorizationRequest;
+import io.github.moudjames23.osmsconnect.http.requests.OrderHistoryRequest;
+
+
+import io.github.moudjames23.osmsconnect.model.error.AuthorizationError;
 import io.github.moudjames23.osmsconnect.model.error.APIError;
+
 import io.github.moudjames23.osmsconnect.model.request.SMSRequest;
+
 import io.github.moudjames23.osmsconnect.model.response.BalanceResponse;
-import io.github.moudjames23.osmsconnect.model.response.OrderHistoryResponse;
+import io.github.moudjames23.osmsconnect.model.response.AuthorizationResponse;
 import io.github.moudjames23.osmsconnect.model.response.SendSMSResponse;
+import io.github.moudjames23.osmsconnect.model.response.OrderHistoryResponse;
 
 import java.io.IOException;
+import java.util.*;
 
 import static io.github.moudjames23.osmsconnect.util.RequestUtils.performRequest;
 
 public class SMS {
 
-    private final SMSClient smsClient;
+    private final String token;
 
+    private final String clientId;
 
-    public SMS(SMSClient smsClient) {
-        this.smsClient = smsClient;
+    private final String clientSecret;
+
+    public SMS(String clientId, String clientSecret) throws IOException {
+        this.clientId = clientId;
+        this.clientSecret = clientSecret;
+        this.token = generateAccessToken();
     }
 
     /**
-     * this method allows you to get the number SMS remaining based on Country code
-     * @param country access to country code
-     * @return number SMS remaining and expiration date
-     * @throws JsonProcessingException if  balance call failed
+     * generate access token
+     * @throws IOException @exception
+     * @throws SMSException @see {@link SMSException}
      */
-    public BalanceResponse balance(Country country) throws IOException {
+    public String generateAccessToken() throws SMSException, IOException {
+        AuthorizationRequest request = new AuthorizationRequest(clientId, clientSecret);
 
-        BalanceRequest request = new BalanceRequest(this.smsClient.getToken(), country);
+        Optional<AuthorizationResponse> authorizationResponse = Optional.ofNullable(performRequest(request, ResponseSuccessCode.SUCCESS, AuthorizationResponse.class, new AuthorizationError()));
+
+        return authorizationResponse.map(AuthorizationResponse::getAccessToken).orElseThrow(()-> new SMSException("Impossible de générer le token"));
+    }
+    /**
+     * Get the remaining SMS balance based on the country code.
+     *
+     * @param country Country code
+     * @return Balance information
+     * @throws IOException if the balance call fails
+     */
+    public BalanceResponse getRemainingBalance(Country country) throws IOException {
+        BalanceRequest request = new BalanceRequest(token, country);
         return performRequest(request, ResponseSuccessCode.SUCCESS, BalanceResponse[].class, new APIError())[0];
-
     }
 
     /**
-     *  this method allows you to send sms based on SMSRequest which
-     * @param smsRequest contains Country sender, recipient number, message and  sendername
-     * @return SMS informations
-     * @throws JsonProcessingException if send sms call failed
+     * Send an SMS based on the provided SMSRequest.
+     *
+     * @param smsRequest SMSRequest containing sender, recipient, message, and sender name
+     * @return SMS information
+     * @throws IOException if the send SMS call fails
      */
     public SendSMSResponse send(SMSRequest smsRequest) throws IOException {
-        SendRequest request = new SendRequest(smsRequest, smsClient.getToken());
-        return performRequest(request, ResponseSuccessCode.CREATED, SendSMSResponse.class, new APIError());
+        SendRequest sendRequest = new SendRequest(token, smsRequest);
+        return performRequest(sendRequest, ResponseSuccessCode.CREATED, SendSMSResponse.class, new APIError());
     }
 
     /**
-     * this method allows to get the history of all your pack purchases from your account.
-     * @param country country code
-     * @return history purchase
-     * @throws JsonProcessingException if order history call failed
+     * Get the history of pack purchases from your account.
+     *
+     * @param country Country code
+     * @return Purchase history
+     * @throws IOException if the order history call fails
      */
-    public OrderHistoryResponse[] orderHistory(Country country) throws IOException {
-        OrderHistoryRequest request = new OrderHistoryRequest(this.smsClient.getToken(), country);
+    public OrderHistoryResponse[] getOrderHistory(Country country) throws IOException {
+        OrderHistoryRequest request = new OrderHistoryRequest(token, country);
+
         return performRequest(request, ResponseSuccessCode.SUCCESS, OrderHistoryResponse[].class, new APIError());
     }
-
 }
