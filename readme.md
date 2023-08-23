@@ -34,8 +34,6 @@ SMSClient client = new SMSClient("YOUR_CLIENT_ID", "YOUR_SECRET_ID");
 Response Structure
 
 ``` json
-HTTP/1.1 200 OK
-Content-Type: application/json
 {
     "token_type": "Bearer",
     "access_token": "{{access_token}}",
