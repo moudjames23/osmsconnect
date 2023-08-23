@@ -29,56 +29,43 @@ implementation 'io.github.moudjames23:osmsconnect:1.0.0'
 Orange SMS Africa and Middle East API requires an Access token, based on your developer credentials (client id and client secret).
 
 ``` java
-SMSClient client = new SMSClient("YOUR_CLIENT_ID", "YOUR_SECRET_ID");
-```
-Response Structure
-
-``` json
-{
-    "token_type": "Bearer",
-    "access_token": "{{access_token}}",
-    "expires_in": "3600"
-}
+SMS sms = new SMS("XXXXXXXXXXX", "XXXXXXXXXXXXX");
 ```
 
 
-If you already had a valid token, you can pass it directly like this:
+
+
+You can now retrieve the token.
 
 ``` java
-SMSClient client = new SMSClient("YOUR_VALID_TOKEN");
+sms.generateAccessToken(); // get token
 ```
-
-You can now retrieve the token and its expiration date.
-
-``` java
-client.getToken(); // get token
-client.getExpireIn(); // get token expiration. The lifetime of the token is 1 hour
-```
+Note: This token expire after one hour
 
 ### Balance
 To retrieve the number of remaining sms and the validity:
 
 ``` java
-BalanceResponse balance = sms.balance(Country.GuineaConakry);
+BalanceResponse balance = sms.getRemainingBalance(Country.GUINEA);
 balance.getAvailableUnits(); // Number of remaining sms
 balance.getExpirationDate(); // Expiration date
 ```
 You will need to specify for which country you would like to retrieve this information.
 
 ``` java
-Country.Botswana;
-Country.BurkinaFaso;
-Country.Cameroon;
-Country.IvoryCost;
-Country.GuineaConakry;
-Country.GuineaBissau;
-Country.DRCongo;
-Country.Jordan;
-Country.Liberia;
-Country.Mali;
-Country.Madagascar;
-Country.Senegal;
-Country.Tunisia;
+Country.BOSTWANA;
+Country.BURKINAFASO;
+Country.CAMEROON;
+Country.IVORYCOAST;
+Country.GUINEA;
+Country.GUINEA_BISSAU;
+Country.DR_CONGO;
+Country.JORDAN;
+Country.LIBERIA;
+Country.MALI;
+Country.MADAGASCAR;
+Country.SENEGAL;
+Country.TUNISIA;
 ```
 
 ### Send SMS
@@ -87,7 +74,7 @@ You can easily send an SMS by doing the following:
 
 ``` java
 SMSRequest smsRequest = SMSRequest.builder()
-                .from(Country.GuineaConakry) // Specify the country
+                .from(Country.GUINEA) // Specify the country
                 .to("2246XXXXXXXX") // The recipient's number
                 .senderName("SPECIFIC_SENDER_NAME") // (Optional) You can specify the SMS header
                 .message("As salamou aleykoum") // The message to send
@@ -106,7 +93,7 @@ smsResponse.getSMSId();
 You can find the history of all your pack purchases from your account
 
 ``` java
-OrderHistoryResponse[] orderHistoryResponses = sms.orderHistory(Country.GuineaConakry);
+OrderHistoryResponse[] orderHistoryResponses = sms.orderHistory(Country.GUINEA);
 ```
 Response Structure
 
